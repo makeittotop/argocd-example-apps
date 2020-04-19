@@ -1,20 +1,29 @@
-apiVersion: apps/v1
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: guestbook-ui
+  name: redis-master
+  labels:
+    app: redis
 spec:
-  replicas: 1
-  revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: guestbook-ui
+      app: redis
+      role: master
+      tier: backend
+  replicas: 1
   template:
     metadata:
       labels:
-        app: guestbook-ui
+        app: redis
+        role: master
+        tier: backend
     spec:
       containers:
-      - image: gcr.io/heptio-images/ks-guestbook-demo:0.2
-        name: guestbook-ui
+      - name: master
+        image: k8s.gcr.io/redis:e2e  # or just image: redis
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
         ports:
-        - containerPort: 80
+        - containerPort: 6379
